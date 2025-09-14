@@ -76,28 +76,62 @@ def dni_valido(cadena):
 
 
 # EXPRESIONES REGULARES
-telf = re.compile(r"((?P<primero>\d{3}) (?P<segundo>\d{3}) (?P<tercero>\d{3}))")
-telf2 = re.compile(r"(?P<formato2>(\+\d{10,15}))")
+telf = re.compile(r"^\d{9}$|^(\d{3} ?\d{3} ?\d{3})$")
+telf2 = re.compile(r"^\+(?:\d ?){10,15}$")
 nif = re.compile(r"(\d{8}[-A-HJ-NP-TV-Z])|([X-Z]\d{7}[-A-HJ-NP-TV-Z])")
 temp = re.compile(
-    r"(?i)(?P<formato1>(?P<fecha1>(?P<ano1>\d{4})-(?P<mes1>0[1-9]|1[0-2])-(?P<dia1>0[1-9]|1[0-9]|2[0-9]|3[0-1])) ("
-    r"?P<tiempo1>(?P<hora1>0[0-9]|1[0-9]|2[0-3]):(?P<min1>[0-5][0-9])))|(?P<formato2>((?P<fecha2>("
-    r"?P<mes2>January|February|March|April|May|June|July|August|September|October|November|December) (?P<dia2>1[0-9]|2["
-    r"0-9]|3[0-1]|[1-9]), (?P<ano2>\d{4})) (?P<tiempo2>(?P<hora2>1[0-1]|[0-9]):(?P<min2>0[0-9]|1[0-9]|2[0-9]|3["
-    r"0-9]|4[0-9]|5[0-9]) (?P<AM_PM>AM|PM))))|(?P<formato3>((?P<tiempo3>(?P<hora3>0[0-9]|1[0-9]|2[0-3]):(?P<min3>["
-    r"0-5][0-9]):(?P<seg3>[0-5][0-9])) (?P<fecha3>(?P<dia3>0[1-9]|1[0-9]|2[0-9]|3[0-1])/(?P<mes3>0[1-9]|1[0-2])/("
-    r"?P<ano3>\d{4}))))")
+    r"(?P<formato1>(?P<ano1>\d{4})-(?P<mes1>0[1-9]|1[0-2])-(?P<dia1>0[1-9]|[12][0-9]|3[01])\s+(?P<hora1>[01][0-9]|2[0-3]):(?P<min1>[0-5][0-9]))"
+    r"|(?P<formato2>(?P<mes2>January|February|March|April|May|June|July|August|September|October|November|December)\s+(?P<dia2>[1-9]|[12][0-9]|3[01]),\s+(?P<ano2>\d{4})\s+(?P<hora2>0?[1-9]|1[0-2]):(?P<min2>[0-5][0-9])\s+(?P<AM_PM>AM|PM|am|pm))"
+    r"|(?P<formato3>(?P<hora3>[01][0-9]|2[0-3]):(?P<min3>[0-5][0-9]):(?P<seg3>[0-5][0-9])\s+(?P<dia3>0[1-9]|[12][0-9]|3[01])/(?P<mes3>0[1-9]|1[0-2])/(?P<ano3>\d{4}))",
+    re.IGNORECASE
+)
+
+
+import re
+
 coord = re.compile(
-    r"(?i)(?P<formato1>(?P<decimal>(?P<latitudDecimal>[+-]?(\d|([1-8]\d)|(90))\.\d+),\s(?P<longitudDecimal>[+-]?("
-    r"\d|([1-9]\d)|(1[0-7]\d)|(180))\.\d+)))|(?P<formato2>(?P<sexagesimal>(?P<latitudSexagesimal>("
-    r"?P<gradosLatitudSexagesimal>((\d)|([1-8]\d)|(90)))([º°]) *(?P<minutosLatitudSexagesimal>(\d|[1-5]\d))' *("
-    r"?P<segundosLatitudSexagesimal>(\d|([1-5]\d))\.\d{4})\" *(?P<orientacionLatitudSexagesimal>[NS])) *,"
-    r"\s(?P<longitudSexagesimal>(?P<gradosLongitudSexagesimal>((\d)|([1-9]\d)|(1[0-7]\d)|(180)))([º°]) *("
-    r"?P<minutosLongitudSexagesimal>((\d)|([1-5]\d)))' *(?P<segundosLongitudSexagesimal>(\d|([1-5]\d))\.\d{4})\" *("
-    r"?P<orientacionLongitudSexagesimal>[WE]))))|(?P<formato3>(?P<GPS>(?P<LatitudGPS>(?P<gradosLatitudGPS>(0[ "
-    r"0-8]\d)|(090))(?P<minutosLatitudGPS>[0-5]\d)(?P<segundosLatitudGPS>[0-5]\d\.\d{4})(?P<orientacionLatitudGPS>["
-    r"NS]))(?P<longitudGPS>(?P<gradosLongitudGPS>(0\d\d)|(1[0-7]\d)|(180))(?P<minutosLongitudGPS>[0-5]\d)("
-    r"?P<segundosLongitudGPS>[0-5]\d\.\d{4})(?P<orientacionLongitudGPS>[EW]))))")
+    # ---------- DECIMAL ----------
+    r"(?P<formato1>"
+        r"(?P<decimal>"
+            r"(?P<latitudDecimal>[+-]?(?:\d|[1-8]\d|90)\.\d+)\s*,\s*"
+            r"(?P<longitudDecimal>[+-]?(?:\d|[1-9]\d|1[0-7]\d|180)\.\d+)"
+        r")"
+    r")"
+    r"|"
+    # ---------- SEXAGESIMAL ----------
+    r"(?P<formato2>"
+        r"(?P<sexagesimal>"
+            r"(?P<latitudSexagesimal>"
+                r"(?P<gradosLatitudSexagesimal>(?:\d|[1-8]\d|90))[º°]\s*"
+                r"(?P<minutosLatitudSexagesimal>\d|[1-5]\d)'\s*"
+                r"(?P<segundosLatitudSexagesimal>(?:\d|[1-5]\d|60)\.\d{4})\"\s*"
+                r"(?P<orientacionLatitudSexagesimal>[NS])"
+            r")\s*,\s*"
+            r"(?P<longitudSexagesimal>"
+                r"(?P<gradosLongitudSexagesimal>(?:\d|[1-9]\d|1[0-7]\d|180))[º°]\s*"
+                r"(?P<minutosLongitudSexagesimal>\d|[1-5]\d)'\s*"
+                r"(?P<segundosLongitudSexagesimal>(?:\d|[1-5]\d|60)\.\d{4})\"\s*"
+                r"(?P<orientacionLongitudSexagesimal>[EW])"
+            r")"
+        r")"
+    r")"
+    r"|"
+    # ---------- GPS (fixed, same group names) ----------
+    r"(?P<formato3>"
+        r"(?P<GPS>"
+            r"(?P<gradosLatitudGPS>\d{2,3})"
+            r"(?P<minutosLatitudGPS>[0-5]\d)"
+            r"(?P<segundosLatitudGPS>\d{2}\.\d{4})"
+            r"(?P<orientacionLatitudGPS>[NS])"
+            r"(?P<gradosLongitudGPS>\d{3})"
+            r"(?P<minutosLongitudGPS>[0-5]\d)"
+            r"(?P<segundosLongitudGPS>\d{2}\.\d{4})"
+            r"(?P<orientacionLongitudGPS>[EW])"
+        r")"
+    r")"
+)
+
+
 
 din = re.compile(r"((?P<euros>\d*)(?P<centimos>(\.\d*))?€)")
 
@@ -409,8 +443,8 @@ def coordenadasFormato3(coordenada):
 # NUMERO TELEFONO
 # --------------------------------------------------
 def validaNum(numero):
-    if numero[0].strip(" ") != '+':
-        resultado = telf.fullmatch(numero.strip(" "))
+    if numero.strip(" ")[0] != '+':
+        resultado = telf.fullmatch(numero.replace(" ", ""))
         if resultado:
             return dict([('telefono', numero.replace(" ", ""))])
         else:
@@ -448,9 +482,7 @@ def validaTiempo(tiempo):
 
             # Formato 2 -> August 6, 1945 8:15 AM
             meses = re.compile(
-                r"(?i)(?P<enero>January)|(?P<febrero>February)|(?P<marzo>March)|(?P<abril>Apil)|(?P<mayo>May)|("
-                r"?P<junio>June)|(?P<julio>July)|(?P<agosto>August)|(?P<septiembre>September)|(?P<octubre>October)|("
-                r"?P<noviembre>November)|(?P<diciembre>December)")
+                r"(?i)(?P<enero>January)|(?P<febrero>February)|(?P<marzo>March)|(?P<abril>April)|(?P<mayo>May)|(?P<junio>June)|(?P<julio>July)|(?P<agosto>August)|(?P<septiembre>September)|(?P<octubre>October)|(?P<noviembre>November)|(?P<diciembre>December)")
             Mes = meses.fullmatch(resultado.group("mes2").rstrip())
 
             MES = 0
@@ -623,6 +655,7 @@ def parsear_n(fichero):
     try:
         for linea in archivo:
             campos = linea.split(";")
+
             if validaNum(campos[0].strip(" ")) and validaNIF(campos[1].strip(" ")) and validaTiempo(
                     campos[2].strip(" ")) and validaCoord(campos[3].strip(" ")) and validaDinero(
                     campos[5].strip(" ")):
@@ -649,6 +682,7 @@ def parsear_n(fichero):
 # -SPHONE
 # --------------------------------------------------
 def parsear_sphone(telefono, fichero):
+    
     if validaNum(telefono):
         try:
             archivo = open(fichero, encoding='utf8')
@@ -662,38 +696,44 @@ def parsear_sphone(telefono, fichero):
         try:
             for linea in archivo:
                 campos = linea.split(";")
+
+                #if(campos[1].strip() == "94524959L") and (campos[5].strip() == "2312.5€"):
+                #    print(validaNum(campos[0].strip(" ")))
+                #    print(validaNIF(campos[1].strip(" ")))
+                #    print(validaTiempo(campos[2].strip(" ")))
+                #    print(validaCoord(campos[3].strip()))
+                #    print(validaDinero(campos[5].strip(" ")))
+
                 if validaNum(campos[0].strip(" ")) and validaNIF(campos[1].strip(" ")) and validaTiempo(
-                        campos[2].strip(" ")) and validaCoord(campos[3].strip(" ")) and validaDinero(
+                        campos[2].strip(" ")) and validaCoord(campos[3].strip()) and validaDinero(
                         campos[5].strip(" ")):
-                    resultado = telf.fullmatch(telefono.strip(" "))
-                    if resultado is not None:
-                        if campos[0].replace(" ", "")[0] == "+":
-                            if telefono.replace(" ", "")[0] != "+":
-                                prefijo = "+34"
-                                nuevo_telefono = prefijo + telefono.rstrip()
-                                if nuevo_telefono.replace(" ", "") == campos[0].replace(" ", ""):
-                                    print(linea, end='')
-                            else:
-                                if telefono.replace(" ", "") == campos[0].replace(" ", ""):
-                                    print(linea, end='')
-                        else:
-                            if telefono.replace(" ", "")[0] == "+":
-                                prefijo = "+34"
-                                nuevo_numero = prefijo + campos[0].rstrip()
-                                if telefono.replace(" ", "") == nuevo_numero.replace(" ", ""):
-                                    print(linea, end='')
-                            else:
-                                prefijo = "+34"
-                                nuevo_numero = prefijo + campos[0].rstrip()
-                                nuevo_telefono = prefijo + telefono.rstrip()
-                                if nuevo_telefono.replace(" ", "") == nuevo_numero.replace(" ", ""):
-                                    print(linea, end='')
-                    resultado2 = telf2.fullmatch(telefono.replace(" ", ""))
-                    if resultado2 is not None:
-                        prefijo = "+34"
-                        nuevo_numero = prefijo + campos[0].replace(" ", "")
-                        if telefono.replace(" ", "") == nuevo_numero:
-                            print(linea, end='')
+                    
+                    if(telf.fullmatch(campos[0].replace(" ", ""))):
+                        resultado = telf.fullmatch(campos[0].replace(" ", ""))
+                            
+
+                        if resultado is not None:
+                            num = campos[0].replace(" ", "")
+
+                            if(telefono.replace(" ", ""))[0:3] == "+34":
+                                num = "+34" + num
+
+                            if(telefono.replace(" ", "") == num):  
+                                print(linea, end='')
+
+                    elif(telf2.fullmatch(campos[0].replace(" ", ""))):
+                        resultado = telf2.fullmatch(campos[0].replace(" ", ""))
+
+                        if resultado is not None:
+
+                            num = campos[0].replace(" ", "")
+
+                            if(telefono.replace(" ", ""))[0] != "+" and num[0:3] == "+34":
+                                num = num[3:]
+
+                            if(telefono.replace(" ", "") == num):    
+                                print(linea, end='')
+
         finally:
             archivo.close()
     else:
@@ -725,7 +765,7 @@ def parsear_snif(NIF, fichero):
         finally:
             archivo.close()
     else:
-        print("Número inválido")
+        print("Número de DNI inválido")
         exit(1)
 
 
@@ -889,6 +929,8 @@ def main():
         parsear_stime(lista_argumentos[2], lista_argumentos[3], lista_argumentos[4])
     elif lista_argumentos[1] == "-slocation":
         parsear_slocation(lista_argumentos[2], lista_argumentos[3], lista_argumentos[4])
+    else: 
+        exit(2) # Introduced wrong parameters
 
 
 main()
